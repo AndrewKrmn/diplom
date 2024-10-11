@@ -35,7 +35,7 @@ pipeline {
         stage('Deploy Containers') {
             steps {
                 // Запуск інших контейнерів
-                sh 'docker-compose up -d'
+                sh 'docker compose up -d'
             }
         }
     }
