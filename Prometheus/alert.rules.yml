@@ -1,0 +1,63 @@
+groups:
+- name: alert.rules
+  rules:
+  - alert: InstanceDown
+    expr: up == 0
+    for: 0m
+    labels:
+      severity: critical
+    annotations:
+      description: "Server down {{ $labels.instance }} or service {{ $labels.job }}"
+      instancename: "{{ $labels.instance }}"
+      summary: "Instance down"
+
+- name: ContainerHealthAlerts
+  rules:
+  - alert: CadvisorContainerDown
+    expr: up{job="cadvisor"} == 0
+    labels:
+      severity: critical
+    annotations:
+      summary: 'Alert: Cadvisor container is down'
+      description: 'The Cadvisor container is down or not responding.'
+
+- name: ContainerAvailability
+  rules:
+  - alert: ContainerDown
+    expr: time() - container_last_seen{container_label_com_docker_compose_service=~".+"} > 600
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Container {{ $labels.container_label_com_docker_compose_service }} is down"
+      description: "Container {{ $labels.container_label_com_docker_compose_service }} has not been seen for more than 10 minutes."
+
+- name: NodeResourceAlerts
+  rules:
+  - alert: HighCPUUsage
+    expr: (100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)) > 80
+    for: 0m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High CPU usage on {{ $labels.instance }}"
+      description: "CPU usage is above 80% on {{ $labels.instance }} (current value: {{ $value }}%)"
+
+  - alert: HighMemoryUsage
+    expr: ((node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100) > 80
+    for: 0m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High memory usage on {{ $labels.instance }}"
+      description: "Memory usage is above 80% on {{ $labels.instance }} (current value: {{ $value }}%)"
+
+  - alert: HighDiskUsage
+    expr: ((node_filesystem_size_bytes{fstype!~"tmpfs|overlay"} - node_filesystem_free_bytes{fstype!~"tmpfs|overlay"}) / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"} * 100) > 80
+    for: 0m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High disk usage on {{ $labels.instance }} ({{ $labels.mountpoint }})"
+      description: "Disk usage is above 80% on {{ $labels.instance }} mountpoint {{ $labels.mountpoint }} (current value: {{ $value }}%)"
+
