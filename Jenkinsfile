@@ -29,8 +29,7 @@ pipeline {
         }
         stage('Run') {
             steps {
-                sh 'docker run -d -p 8080:8080 --net="host" --pid="host" --restart=always --name site chikibevchik/diplom-site
-'
+                sh 'docker run -d -p 8080:8080 --net="host" --pid="host" --restart=always --name site chikibevchik/diplom-site'
             }
         }
         stage('Deploy Containers') {
