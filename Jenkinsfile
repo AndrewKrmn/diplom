@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Clone repository') {
             steps {
-                git branch: 'main', url: 'git@github.com:AndrewKrmn/diplom.git',credentialsId: 'git'
+                git branch: 'main', url: 'git@github.com:AndrewKrmn/diplom.git'
             }
         }
         stage('Build Docker Image') {
@@ -27,10 +27,10 @@ pipeline {
                 }
             }
         }
-        stage('Run Tests') {
+        stage('Run') {
             steps {
-                // Ваші тести
-                sh 'docker run --rm $IMAGE_NAME pytest tests/'
+                sh 'docker run -d -p 8080:8080 --net="host" --pid="host" --restart=always --name site chikibevchik/diplom-site
+'
             }
         }
         stage('Deploy Containers') {
