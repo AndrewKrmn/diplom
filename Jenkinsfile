@@ -48,7 +48,7 @@ pipeline {
         stage('Deploy Containers') {
             steps {
                 script {
-                    sh 'cd diplom && docker-compose up'
+                    sh 'cd diplom && docker-compose up -d'
                 }
             }
         }
