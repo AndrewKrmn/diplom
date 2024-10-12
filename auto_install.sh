@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# ЗМІННІ ДЛЯ АВТОРИЗАЦІЇ
-DOCKER_USER=${DOCKER_USER:-"your_dockerhub_username"}    # Ім'я користувача Docker Hub
-DOCKER_PASS=${DOCKER_PASS:-"your_dockerhub_password"}    # Пароль Docker Hub або токен доступу
-GITHUB_USER=${GITHUB_USER:-"your_github_username"}       # Ім'я користувача GitHub
-GITHUB_TOKEN=${GITHUB_TOKEN:-"your_github_personal_access_token"}  # Персональний токен GitHub
-
-# Ім'я Docker контейнера
-CONTAINER_NAME="site"
+# Завантажуємо змінні з файлу .env
+if [ -f .env ]; then
+    echo "Завантаження змінних з файлу .env..."
+    source .env
+else
+    echo "Файл .env не знайдено!"
+    exit 1
+fi
 
 # Оновлення та прокачка системних пакетів
 sudo apt update && sudo apt upgrade -y
@@ -30,37 +30,16 @@ else
     echo "Docker уже встановлений."
 fi
 
-# Створення SSH ключа, якщо не існує, та автоматичне додавання на GitHub через API
-if [ ! -f ~/.ssh/id_rsa ]; then
-    echo "Створюємо новий SSH ключ..."
-    ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f ~/.ssh/id_rsa -N ""
+# Переміщення існуючого SSH ключа на AWS машину
+echo "Переміщуємо існуючий SSH ключ на AWS..."
+scp -i $AWS_KEY_PATH ~/.ssh/id_rsa $AWS_USER@$AWS_HOST:~/.ssh/
 
-    # Запускаємо SSH агент і додаємо ключ
-    eval "$(ssh-agent -s)"
-    ssh-add ~/.ssh/id_rsa
-
-    # Читання публічного ключа
-    SSH_KEY=$(cat ~/.ssh/id_rsa.pub)
-
-    # Додавання публічного ключа на GitHub через API
-    echo "Додаємо публічний ключ на GitHub через API..."
-    curl -H "Authorization: token $GITHUB_TOKEN" \
-        --data "{\"title\":\"$(hostname)\",\"key\":\"$SSH_KEY\"}" \
-        https://api.github.com/user/keys
-
-    if [ $? -eq 0 ]; then
-        echo "SSH ключ успішно додано на GitHub!"
-    else
-        echo "Помилка при додаванні SSH ключа на GitHub."
-        exit 1
-    fi
+if [ $? -ne 0 ]; then
+    echo "Помилка при переміщенні SSH ключа на AWS машину."
+    exit 1
 else
-    echo "SSH ключ уже існує."
+    echo "SSH ключ успішно переміщено на AWS машину."
 fi
-
-# Перезапуск SSH агента для переконання, що ключ додано
-eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/id_rsa
 
 # Перевірка підключення до GitHub через SSH
 echo "Перевіряємо підключення до GitHub..."
@@ -121,4 +100,3 @@ else
     sudo apt-get install -y docker-compose-plugin
     docker compose up -d
 fi
-
