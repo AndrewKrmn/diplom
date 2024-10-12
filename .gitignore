@@ -3,4 +3,5 @@ jenkins_home/
 .terraform.lock.hcl
 terraform.tfstate
 terraform.tfstate.backup
+.env
 
