@@ -288,7 +288,7 @@ spec:
     spec:
       containers:
       - name: web
-        image: your-frontend-image
+        image: chikibevchik/diplom-frontend
         ports:
         - containerPort: 3000
 ---
@@ -321,7 +321,7 @@ spec:
     spec:
       containers:
       - name: api
-        image: your-backend-image
+        image: chikibevchik/diplom-backend
         ports:
         - containerPort: 3001
 ---
