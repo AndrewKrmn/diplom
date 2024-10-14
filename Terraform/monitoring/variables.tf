@@ -7,12 +7,12 @@ variable "aws_region" {
 
 variable "instance_name" {
   description = "Ім'я EC2 інстансу"
-  default     = "server"
+  default     = "monitoring server"
 }
 
 variable "instance_type" {
   description = "Тип EC2 інстансу"
-  default     = "t2.micro"
+  default     = "t2.small"
 }
 
 variable "key_pair_name" {
