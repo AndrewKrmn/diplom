@@ -107,3 +107,7 @@ resource "aws_instance" "ubuntu_instance" {
     Name = var.instance_name
   }
 }
+resource "aws_eip_association" "eip_assoc" {
+  instance_id   = aws_instance.ubuntu_instance.id
+  allocation_id = "eipalloc-0cee8426396aa7482"
+}

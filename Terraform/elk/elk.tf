@@ -134,9 +134,4 @@ resource "aws_instance" "EC2-Instance" {
   }
 }
 
-# Асоціація вже існуючої Elastic IP з EC2 інстанцією
-resource "aws_eip_association" "eip_assoc" {
-  instance_id   = aws_instance.EC2-Instance.id
-  allocation_id = "eipalloc-02cbbb47eac070c46"
-}
 
